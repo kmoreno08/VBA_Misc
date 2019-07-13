@@ -1,0 +1,301 @@
+Option Explicit
+
+'To clear select columns of values
+Sub delete_columns()
+    Columns("O:O").Select
+    Selection.ClearContents
+    Columns("P:P").Select
+    Selection.ClearContents
+    Columns("Q:Q").Select
+    Selection.ClearContents
+    Range("A1").Select
+    
+End Sub
+
+'''Find the value of delta
+Sub find_delta()
+
+    Dim StartCell As Range 'for inputbox to select range
+    Dim Sh As Worksheet
+    Dim shName As String
+    Dim msgConfirm As VBA.VbMsgBoxResult 'for message box to confirm
+    Dim c As Range
+    Dim found_row As Integer
+    Dim Market_Rent As Long
+    Dim begin_amount As Long
+    Dim delta_value As Long
+    Dim cycle_row As Long
+    Dim found As Byte
+    Dim amount_value As Long
+    Dim New_cell As String
+    Dim I As Long
+    Dim last_Row As Long
+    Dim start_row As Long
+    Dim enter_loop As Byte
+    
+    
+    
+    
+    'If cancel button is clicked
+    On Error Resume Next
+    
+    'user can select cells
+    Set StartCell = Excel.Application.InputBox("Please choose the first unit in Column A" _
+    & vbNewLine & "Please select correct cell:", "Start of program", , , , , , 8)
+    
+    'select startcell
+    StartCell.Select
+    
+    'If cancel button is clicked then exit program
+    If Err.Number = 424 Then Exit Sub
+        On Error GoTo Handle
+ 
+    'Makes sure that its only one cell
+    Set StartCell = StartCell.Cells(1, 1)
+    
+    
+    'Jumps to last row - if empty row jumps to next cell with value
+    last_Row = Range("A" & 5000).End(xlUp).Row
+    
+    'User chooses starting cell to run program
+    start_row = Range(StartCell.Address).Row
+    
+    'Starts at row user chooses, end for loop at last row
+    Do While enter_loop = 0
+        New_cell = ActiveCell.Address
+         'Row that was select
+         found_row = Range(New_cell).Row
+        'Market rent
+        Market_Rent = Range("F" & found_row)
+        
+        'Start at amount column
+        begin_amount = Range("H" & found_row)
+        'Change variable to use for loop
+        cycle_row = found_row
+        
+        'Iterates through column "H" and finds the bold value which is the correct value
+        Do While found = 0
+            Range("H" & cycle_row).Select
+            'If Bold then save value
+            If Range("H" & cycle_row).Font.Bold Then
+                amount_value = Range("H" & cycle_row)
+                found = 1
+            'Not bold then continue on to next cell
+            Else
+                cycle_row = cycle_row + 1
+            End If
+        Loop
+        found = 0
+        'Write values to their correct cells
+        Range("o" & found_row).Value = Market_Rent
+        Range("p" & found_row).Value = amount_value
+        delta_value = Market_Rent - amount_value
+        Range("Q" & found_row).Value = delta_value
+        
+        'Drops to the next cell that has a value - skips empty cells
+        Range(New_cell).Select
+        Selection.End(xlDown).Select
+    Loop
+    
+        Exit Sub
+    
+Handle:
+    
+End Sub
+
+
+'''Added headers
+Sub Added_Headers()
+
+    Range("O6").Select
+    ActiveCell.FormulaR1C1 = "Market Rent"
+    Range("P6").Select
+    ActiveCell.FormulaR1C1 = "Amount"
+    Range("Q6").Select
+    ActiveCell.FormulaR1C1 = "Delta"
+    Range("O6").Select
+    With Selection
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Range("P6").Select
+    With Selection
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Range("Q6").Select
+    With Selection
+        .HorizontalAlignment = xlRight
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+End Sub
+
+'''Highlight any value that does not equal to zero
+Sub highlight_outlier()
+    
+    Dim StartCell As Range 'for inputbox to select range
+    Dim Sh As Worksheet
+    Dim shName As String
+    Dim msgConfirm As VBA.VbMsgBoxResult 'for message box to confirm
+    Dim highlight_amount As Long
+    Dim c As Range
+    Dim found_row As Integer
+    Dim Market_Rent As Long
+    Dim begin_amount As Long
+    Dim delta_value As Long
+    Dim cycle_row As Long
+    Dim found As Byte
+    Dim amount_value As Long
+    Dim New_cell As String
+    Dim I As Long
+    Dim start_row As Long
+    Dim enter_loop As Byte
+    Dim highlight_value As Long
+  
+    
+    
+    'If cancel button is clicked
+    On Error Resume Next
+    
+    'user can select cells
+    Set StartCell = Excel.Application.InputBox("Please choose the first unit in Column A" _
+    & vbNewLine & "Please select correct cell:", "Highlight outliers", , , , , , 8)
+    
+    'select startcell
+    StartCell.Select
+    
+    'If cancel button is clicked then exit program
+    If Err.Number = 424 Then Exit Sub
+        On Error GoTo Handle
+ 
+    'Makes sure that its only one cell
+    Set StartCell = StartCell.Cells(1, 1)
+    Debug.Print StartCell.Address
+    
+    Do While found_row < 1000
+        New_cell = ActiveCell.Address
+        
+         'Row that was select
+         found_row = Range(New_cell).Row
+         
+         
+        'Use as a stop
+        Market_Rent = Range("F" & found_row)
+        
+        
+        highlight_value = Range("Q" & found_row).Value
+        
+        'Highight row if value does not equal zero
+        If highlight_value <> 0 Then
+            'Then highlight row
+            Rows(found_row).Interior.Color = vbYellow
+        'If value does equal zero then do not highlight
+        Else
+        End If
+        
+        Range(New_cell).Select
+        Selection.End(xlDown).Select
+    Loop
+    Range("A1").Select
+    Exit Sub
+    
+'If cancel is clicked then exit program
+Handle:
+
+End Sub
+
+
+'''Take off the highlighted outliers
+Sub de_highlight_outlier()
+    
+    Dim StartCell As Range 'for inputbox to select range
+    Dim Sh As Worksheet
+    Dim shName As String
+    Dim msgConfirm As VBA.VbMsgBoxResult 'for message box to confirm
+    Dim highlight_amount As Long
+    Dim c As Range
+    Dim found_row As Integer
+    Dim Market_Rent As Long
+    Dim begin_amount As Long
+    Dim delta_value As Long
+    Dim cycle_row As Long
+    Dim found As Byte
+    Dim amount_value As Long
+    Dim New_cell As String
+    Dim I As Long
+    Dim start_row As Long
+    Dim enter_loop As Byte
+    Dim highlight_value As Long
+  
+    
+    
+    'If cancel button is clicked
+    On Error Resume Next
+    
+    'user can select cells
+    Set StartCell = Excel.Application.InputBox("Please choose the first unit in Column A" _
+    & vbNewLine & "Please select correct cell:", "Highlight Outliers", , , , , , 8)
+    
+    'select startcell
+    StartCell.Select
+    
+    'If cancel button is clicked then exit program
+    If Err.Number = 424 Then Exit Sub
+        On Error GoTo Handle
+ 
+    'Makes sure that its only one cell
+    Set StartCell = StartCell.Cells(1, 1)
+    Debug.Print StartCell.Address
+    
+    Do While found_row < 1000
+        New_cell = ActiveCell.Address
+        
+         'Row that was select
+         found_row = Range(New_cell).Row
+         
+         
+        'Use as a stop
+        Market_Rent = Range("F" & found_row)
+        
+        
+        highlight_value = Range("Q" & found_row).Value
+        'If value does not equal zero changed to a white row
+        If highlight_value <> 0 Then
+            'Then highlight row
+            Rows(found_row).Interior.Color = vbWhite
+        Else
+        End If
+        
+        Range(New_cell).Select
+        Selection.End(xlDown).Select
+    Loop
+    
+    Range("A1").Select
+    Exit Sub
+    
+    
+Handle:
+
+End Sub
+
